@@ -53,8 +53,19 @@ def center_of(near: str):
 def branches(a) -> tuple[list[dict], list[str], list[dict]]:
     """Every branch in the radius, downloaded. Returns (ok, unlocated, failed)."""
     center = center_of(a.near)
-    chain_list = a.chains.split(",")
+    chain_list, down = [], []
     say("מאתר את הסניפים באזור...")
+    for c in a.chains.split(","):  # one portal that doesn't answer must not stop the others
+        try:
+            chains.stores(c)
+            chain_list.append(c)
+        except Exception:
+            down.append(chains.CHAINS[c]["he"])
+    if down:
+        say(f'הפורטל לא ענה, הרשת לא נבדקה: {", ".join(down)}')
+    a.down = down
+    if not chain_list:
+        raise SystemExit("אף פורטל לא ענה. נסה שוב בעוד כמה דקות.")
     pois = geo.brand_pois(center, a.radius + 1, {c: chains.CHAINS[c]["osm"] for c in chain_list})
     found, unlocated = compare.in_radius(center, a.radius, chain_list, pois, set())
     if a.per_chain:
@@ -108,7 +119,7 @@ def search(a) -> None:
     stores, unlocated, failed = branches(a)
     out = {"date": date.today().isoformat(), "near": a.near, "radius_km": a.radius, "queries": [],
            "branches": [where(s) | {"file": s["file"]} for s in stores],
-           "failed": failed_rows(failed), "unlocated": unlocated, "disclaimer": DISCLAIMER}
+           "failed": failed_rows(failed), "chains_down": a.down, "unlocated": unlocated, "disclaimer": DISCLAIMER}
     for q in a.q:
         ws = words_of(q)
         if not any(not is_size(w) for w in ws):
@@ -199,7 +210,7 @@ def prices(a) -> None:
            "items": [{"barcode": c, "qty": q, "name": names[c]} for c, q in items],
            "per_item": per_item, "ranking": complete, "partial": partial,
            "not_carrying": [t["name"] for t in table if not t["items"]],
-           "failed": failed_rows(failed), "unlocated": unlocated, "disclaimer": DISCLAIMER}
+           "failed": failed_rows(failed), "chains_down": a.down, "unlocated": unlocated, "disclaimer": DISCLAIMER}
 
     for code, q in items:
         pi = per_item[code]
