@@ -171,12 +171,16 @@ def brand_pois(center, radius_km: float, aliases: dict) -> dict:
     """Supermarkets actually mapped around a point, by chain. If the map is unavailable, returns {}."""
     la, lo = center
     f = _cache(f"pois_{round(la, 3)}_{round(lo, 3)}_{round(radius_km, 1)}.json")
+    failed = f.with_name(f.stem + "_failed_" + time.strftime("%Y%m%d"))
     if f.exists():
         els = json.loads(f.read_text(encoding="utf-8"))
+    elif failed.exists():  # the map already failed today: don't wait for it again
+        return {}
     else:
         try:
             els = _overpass(f'[out:json][timeout:30];nwr["shop"="supermarket"](around:{int(radius_km * 1000)},{la},{lo});out center tags;', timeout=35)
         except RuntimeError:
+            failed.touch()
             return {}
         f.write_text(json.dumps(els, ensure_ascii=False), encoding="utf-8")
     out = {c: [] for c in aliases}

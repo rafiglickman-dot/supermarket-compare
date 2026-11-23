@@ -21,6 +21,7 @@ import argparse
 import json
 import re
 import sys
+import time
 from datetime import date
 from pathlib import Path
 
@@ -32,6 +33,7 @@ import geo  # noqa: E402
 DISCLAIMER = ("חשוב לדעת: המערכת עלולה לטעות ולא תמיד מדייקת ב-100%. היא נשענת על קובצי המחירים שהרשתות מפרסמות "
               "ועל התאמת שם המוצר בידי AI, ומחירים, מבצעים, מלאי וכתובות יכולים להשתנות. זו הערכה ולא הבטחה לסכום "
               "בקופה, אז לפני נסיעה מיוחדת כדאי לוודא מול הסניף.")
+DOWN_SECONDS = 30 * 60  # retry a portal that did not answer only after this long
 LOC_HE = {"verified": "מאומת במפה", "address": "לפי כתובת בלבד", "street": "לפי רחוב בלבד", "manual": "ידני"}
 
 
@@ -56,11 +58,18 @@ def branches(a) -> tuple[list[dict], list[str], list[dict]]:
     chain_list, down = [], []
     say("מאתר את הסניפים באזור...")
     for c in a.chains.split(","):  # one portal that doesn't answer must not stop the others
+        mark = chains.CACHE / f"down_{c}"  # a portal that just failed is not waited for again for a while
+        if mark.exists() and time.time() - mark.stat().st_mtime < DOWN_SECONDS:
+            down.append(chains.CHAINS[c]["he"])
+            continue
         try:
             chains.stores(c)
             chain_list.append(c)
+            mark.unlink(missing_ok=True)
         except Exception:
             down.append(chains.CHAINS[c]["he"])
+            chains.CACHE.mkdir(parents=True, exist_ok=True)
+            mark.touch()
     if down:
         say(f'הפורטל לא ענה, הרשת לא נבדקה: {", ".join(down)}')
     a.down = down
