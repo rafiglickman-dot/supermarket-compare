@@ -55,6 +55,7 @@ scripts/read_receipt.py        קריאה אוטומטית עם מפתח OpenAI 
 scripts/chains.py              הורדת קובצי המחירים והסניפים מכל הפורטלים
 scripts/geo.py                 מיקום הסניפים ומפת הרחובות (OpenStreetMap)
 scripts/compare.py             רדיוס, התאמה לברקוד, מבצעים והשוואה
+scripts/price_check.py         בלי קבלה: כמה עולה מוצר או רשימה קצרה בכל סניף ברדיוס
 scripts/equivalents.py         התאמת ירקות, פירות וביצים בין רשתות
 scripts/advisor.py             ההמלצה: סניף, כתובת, כדאיות נסיעה, שתי עצירות ורשימת קניות
 scripts/branch_locations.json  מיקומי הסניפים, מחושב מראש
