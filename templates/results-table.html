@@ -1,0 +1,223 @@
+<title>הקבלה מספאר מול השכנים</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Heebo:wght@400;500&display=swap">
+<style>
+/* Layout: one deep-ink sheet, a summary strip, then a single ledger table where each store is a row separated by soft rules and a savings bar */
+:root {
+  --bg: #0e1218;
+  --sheet: #151b24;
+  --row-alt: #18202b;
+  --rule: #263140;
+  --fg: #ffffff;
+  --muted: #9aa8ba;
+  --save: #4fd1a5;
+  --save-soft: rgba(79, 209, 165, .16);
+  --cost: #ff7a7a;
+  --cost-soft: rgba(255, 122, 122, .14);
+  --gold: #f2c45a;
+  --display: "Rubik", "Heebo", system-ui, sans-serif;
+  --body: "Heebo", "Rubik", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.5;
+  direction: rtl;
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-block: 32px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 24px;
+}
+header { display: grid; gap: 6px; }
+.eyebrow { color: var(--muted); font-size: 13px; letter-spacing: .04em; }
+h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(24px, 4vw, 34px);
+  margin: 0;
+  text-wrap: balance;
+}
+.sub { color: var(--muted); margin: 0; max-width: 65ch; }
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.stat { background: var(--sheet); padding: 16px 18px; display: grid; gap: 2px; }
+.stat .k { color: var(--muted); font-size: 13px; }
+.stat .v { font-family: var(--display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .v.save { color: var(--save); }
+.stat .n { color: var(--muted); font-size: 13px; }
+
+.table-box {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; min-width: 760px; font-variant-numeric: tabular-nums; }
+thead th {
+  text-align: right;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: .03em;
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--rule);
+  background: var(--sheet);
+  white-space: nowrap;
+}
+tbody td { padding: 14px 16px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+tbody tr:nth-child(even) td { background: var(--row-alt); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: #1d2733; }
+tr.group td {
+  background: var(--bg) !important;
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--muted);
+  padding: 10px 16px;
+  letter-spacing: .04em;
+  border-bottom: 1px solid var(--rule);
+}
+.rank { color: var(--muted); width: 36px; text-align: center; }
+tr.top .rank { color: var(--gold); font-weight: 700; }
+.store { font-weight: 500; }
+.addr { color: var(--muted); font-size: 13px; }
+.num { text-align: left; white-space: nowrap; }
+.loc { font-size: 12px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--rule); color: var(--muted); white-space: nowrap; }
+.loc.ok { color: var(--save); border-color: rgba(79,209,165,.4); }
+.delta { display: flex; align-items: center; gap: 10px; justify-content: flex-start; min-width: 170px; }
+.pill { font-weight: 700; padding: 3px 10px; border-radius: 8px; white-space: nowrap; }
+.pill.save { color: var(--save); background: var(--save-soft); }
+.pill.cost { color: var(--cost); background: var(--cost-soft); }
+.bar { flex: 1; height: 6px; background: #222c39; border-radius: 99px; overflow: hidden; min-width: 50px; }
+.bar i { display: block; height: 100%; border-radius: 99px; background: var(--save); }
+.bar i.cost { background: var(--cost); }
+
+.notes { display: grid; gap: 8px; color: var(--muted); font-size: 14px; max-width: 80ch; }
+.notes p { margin: 0; }
+.notes b { color: var(--fg); font-weight: 500; }
+.disclaimer {
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 80ch;
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">קבלה: ספאר ישראל, אלי הורוביץ 26 כפר סבא · 24/11/2026 · רדיוס 5 ק"מ</div>
+    <h1>כמה היו עולים אותם מוצרים בסניפים הסמוכים</h1>
+    <p class="sub">כל שורה משווה רק את המוצרים מהקבלה שנמצאו באותו סניף, עם מבצעים פתוחים לכולם. המחירים לפי קובצי המחירים הרשמיים של הרשתות מהיום.</p>
+  </header>
+
+  <section class="summary" aria-label="סיכום">
+    <div class="stat"><span class="k">הכי משתלם</span><span class="v">יוחננוף כפר סבא</span><span class="n">14 מוצרים · 1.7 ק"מ</span></div>
+    <div class="stat"><span class="k">חיסכון שם</span><span class="v save">24.90 ₪</span><span class="n">164.40 ₪ במקום 189.30 ₪ (13%)</span></div>
+    <div class="stat"><span class="k">שתי עצירות: יוחננוף + רמי לוי</span><span class="v save">31.90 ₪</span><span class="n">15 מוצרים: 170.30 ₪ במקום 202.20 ₪</span></div>
+    <div class="stat"><span class="k">הושווה בפועל</span><span class="v">15 / 30</span><span class="n">כ-202 ₪ מתוך 434.56 ₪</span></div>
+  </section>
+
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th class="rank">#</th>
+          <th>סניף</th>
+          <th class="num">מרחק</th>
+          <th>מיקום</th>
+          <th class="num">מוצרים</th>
+          <th class="num">בספאר</th>
+          <th class="num">בסניף</th>
+          <th>הפרש</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="notes">
+    <p><b>לא נבדקו:</b> קרפור (הפורטל לא ענה), 7 מוצרים במשקל (כרעיים, ירקות, ג'ינג'ר, גבינה צהובה) ו-7 ברקודים שלא נמצאו באף סניף (ירקות ארוזים, ביצים, פונזו, פפריקה).</p>
+    <p><b>מרחק:</b> קו אווירי מהספאר. "מאומת במפה" = נמצאה חנות של הרשת במפה ליד הכתובת. "לפי כתובת" או "לפי רחוב" = מרחק בערך, כדאי לוודא במפה לפני נסיעה.</p>
+    <p><b>רמי לוי גלגלי הפלדה</b> מחזיק את קונפיטורת התות (9.90 ₪), שלא נמצאה בשום סניף אחר, אבל חסרים בו פריכיות, גריל עוף, עשבי תיבול ואבוקדו.</p>
+  </div>
+
+  <p class="disclaimer">חשוב לדעת: המערכת עלולה לטעות ולא תמיד מדייקת ב-100%. היא נשענת על קובצי המחירים שהרשתות מפרסמות ועל התאמת שם המוצר בידי AI, ומחירים, מבצעים, מלאי וכתובות יכולים להשתנות. זו הערכה ולא הבטחה לסכום בקופה, אז לפני נסיעה מיוחדת כדאי לוודא מול הסניף.</p>
+</div>
+
+<script>
+// [items, store, address, km, location, spar, here]
+const rows = [
+  [14, "יוחננוף כפר סבא", "", 1.74, "map", 189.30, 164.40],
+  [11, "רמי לוי כפר סבא", "גלגלי הפלדה 2", 1.42, "street", 139.50, 120.80],
+  [9, "אושר עד כפר סבא", "דרך הים 9", 1.42, "map", 113.50, 95.00],
+  [9, "שופרסל יוניברס גזית", "ויצמן 300, מתחם G", 3.05, "street", 126.40, 113.00],
+  [9, "שופרסל דיל שבירו", "רפפורט 6", 4.69, "map", 126.40, 113.00],
+  [8, "רמי לוי רוטשילד", "רוטשילד 39", 3.02, "address", 95.60, 97.80],
+  [7, "שופרסל שלי רוטשילד", "רוטשילד 65", 3.09, "map", 103.50, 96.20],
+  [7, "שופרסל אקספרס דוכיפת", "דוכיפת 5", 1.08, "address", 94.50, 97.20],
+  [7, "שופרסל אקספרס הכרמל", "הגליל 31", 1.87, "address", 94.50, 97.20],
+  [7, "רמי לוי מגדיאל, הוד השרון", "מגדיאל 57", 4.54, "address", 77.70, 81.90],
+  [7, "שופרסל אקספרס הגליל", "הגליל 58", 1.87, "address", 95.60, 100.20],
+  [6, "שופרסל שלי הוד השרון", "הנשיאים 2", 4.01, "address", 97.50, 86.30],
+  [6, "שופרסל אקספרס הוד השרון", "חנקין 12", 3.90, "address", 88.50, 87.30],
+  [6, "שופרסל אקספרס בן גוריון", "בן גוריון 35", 3.09, "address", 81.60, 82.30],
+  [6, "שופרסל אקספרס הוד השרון", "סוקולוב 37", 3.90, "map", 81.60, 82.30],
+  [5, "שופרסל שלי ויצמן", "ויצמן 29", 2.89, "map", 76.60, 70.40],
+  [4, "שופרסל אקספרס אוסטשינסקי", "אוסטשינסקי 15", 3.09, "address", 69.60, 63.50],
+  [3, "שופרסל אקספרס תל חי", "", 2.46, "address", 56.70, 48.60],
+  [3, "שופרסל אקספרס נחשון", "נחשון 10", 3.09, "address", 41.80, 43.60],
+];
+const locLabel = { map: ["מאומת במפה", "ok"], address: ["לפי כתובת", ""], street: ["לפי רחוב", ""] };
+const fmt = n => n.toFixed(2);
+const maxSave = Math.max(...rows.map(r => Math.abs(r[5] - r[6])));
+const body = document.getElementById("rows");
+let lastGroup = null;
+rows.forEach((r, i) => {
+  const [items, store, addr, km, loc, spar, here] = r;
+  const group = items >= 9 ? "סניפים עם 9 מוצרים ומעלה" : "סניפים קטנים יותר (פחות מוצרים מהקבלה)";
+  if (group !== lastGroup) {
+    const g = document.createElement("tr");
+    g.className = "group";
+    g.innerHTML = `<td colspan="8">${group}</td>`;
+    body.appendChild(g);
+    lastGroup = group;
+  }
+  const diff = spar - here;
+  const save = diff >= 0;
+  const pct = Math.round(Math.abs(diff) / spar * 100);
+  const width = Math.max(4, Math.abs(diff) / maxSave * 100);
+  const [ll, lc] = locLabel[loc];
+  const tr = document.createElement("tr");
+  if (i < 3) tr.className = "top";
+  tr.innerHTML = `
+    <td class="rank">${i + 1}</td>
+    <td><div class="store">${store}</div>${addr ? `<div class="addr">${addr}</div>` : `<div class="addr">הרשת לא פרסמה כתובת</div>`}</td>
+    <td class="num">${loc === "map" ? "" : "~"}${km.toFixed(1)} ק"מ</td>
+    <td><span class="loc ${lc}">${ll}</span></td>
+    <td class="num">${items}</td>
+    <td class="num">${fmt(spar)} ₪</td>
+    <td class="num">${fmt(here)} ₪</td>
+    <td><div class="delta"><span class="pill ${save ? "save" : "cost"}">${save ? "חיסכון" : "יקר ב-"} ${fmt(Math.abs(diff))} ₪ · ${pct}%</span><span class="bar"><i class="${save ? "" : "cost"}" style="width:${width}%"></i></span></div></td>`;
+  body.appendChild(tr);
+});
+</script>
