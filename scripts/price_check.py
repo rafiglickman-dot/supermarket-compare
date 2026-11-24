@@ -215,7 +215,17 @@ def prices(a) -> None:
         per_item[code] = {"name": names[code], "qty": q, "found_in": len(rs), "of": len(table),
                           "cheapest": [{"branch": t["name"], "km": t["km"], "open": o, "shelf": sh, "promo": t["items"][code]["open_promo"]} for o, sh, t in rs[:3]],
                           "most_expensive": ({"branch": rs[-1][2]["name"], "open": rs[-1][0]} if rs else None)}
-    out = {"date": date.today().isoformat(), "near": a.near, "radius_km": a.radius,
+    by_key = {(s["chain"], s["store"]): s for s in stores}
+    go = []  # where to drive: the cheapest for the whole list, and the closest that carries it all
+    if complete:
+        picks = [("cheapest", complete[0]), ("closest", min(complete, key=lambda t: t["km"]))]
+        for role, t in picks:
+            if role == "closest" and (t["chain"], t["store"]) == (complete[0]["chain"], complete[0]["store"]):
+                continue
+            pl = compare.place_of(by_key[(t["chain"], t["store"])])
+            go.append({"role": role, "branch": t["name"], "km": t["km"], "location": t["location"], "total_open": t["total_open"],
+                       "extra_vs_cheapest": round(t["total_open"] - complete[0]["total_open"], 2)} | pl)
+    out = {"date": date.today().isoformat(), "near": a.near, "radius_km": a.radius, "go": go,
            "items": [{"barcode": c, "qty": q, "name": names[c]} for c, q in items],
            "per_item": per_item, "ranking": complete, "partial": partial,
            "not_carrying": [t["name"] for t in table if not t["items"]],
@@ -242,6 +252,12 @@ def prices(a) -> None:
             for t in partial[:8]:
                 miss = ", ".join(names[c] or c for c in t["missing"])
                 say(f'  {t["total_open"]:>8.2f} ₪ על מה שיש | {t["name"]} | חסר: {miss}')
+    for g in go:
+        title = "הכי זול" if g["role"] == "cheapest" else f'הכי קרוב (יקר ב-{g["extra_vs_cheapest"]:.2f} ₪)'
+        src = {"file": "", "map": " (הכתובת מהמפה, הרשת לא פרסמה)", "none": ""}[g["address_source"]]
+        say(f'\n>>> {title}: {g["branch"]} | {g["address"] or "אין כתובת"}{src} | {g["km"]:.1f} ק"מ ({g["location"]}) | {g["total_open"]:.2f} ₪')
+        if g["waze"]:
+            say(f'    Waze: {g["waze"]}\n    Google Maps: {g["google"]}')
     tail(out)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
