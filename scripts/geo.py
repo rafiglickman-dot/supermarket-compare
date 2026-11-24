@@ -54,10 +54,17 @@ def _nominatim(params: dict) -> list:
     if wait > 0:
         time.sleep(wait)
     _last[0] = time.time()
-    r = requests.get("https://nominatim.openstreetmap.org/search",
-                     params={**params, "format": "json", "limit": 1, "countrycodes": "il", "addressdetails": 1},
-                     headers={"User-Agent": UA, "Accept-Language": "he"}, timeout=30)
-    return r.json() if r.ok else []
+    # Nominatim sometimes answers 200 with a non-JSON body (throttling page); retry, then give up quietly.
+    for attempt in range(3):
+        try:
+            r = requests.get("https://nominatim.openstreetmap.org/search",
+                             params={**params, "format": "json", "limit": 1, "countrycodes": "il", "addressdetails": 1},
+                             headers={"User-Agent": UA, "Accept-Language": "he"}, timeout=30)
+            return r.json() if r.ok else []
+        except (ValueError, requests.RequestException):
+            time.sleep(2 * (attempt + 1))
+            _last[0] = time.time()
+    return []
 
 
 def _photon(q: str, city: str, box=None) -> dict | None:
