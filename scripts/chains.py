@@ -8,6 +8,8 @@ Every chain is obliged to publish, for every branch, an XML file of all its pric
   cerberus    url.publishedprices.co.il              login with a public username, no password
               (רמי לוי, יוחננוף, אושר עד, טיב טעם ועוד)
   carrefour   prices.carrefour.co.il                 JSON list embedded in the page, files by date
+  bina        <chain>.binaprojects.com               JSON file list, then a JSON pointer to each file
+              (שוק העיר)
 
 Files are gzip'd XML (sometimes zip, sometimes UTF-16). This module hides all of that:
 
@@ -48,6 +50,7 @@ CHAINS = {
     "yohananof": {"he": "יוחננוף", "kind": "cerberus", "user": "yohananof", "color": "#ffc93c", "osm": ["יוחננוף", "yohananof"]},
     "osherad": {"he": "אושר עד", "kind": "cerberus", "user": "osherad", "color": "#31d68f", "osm": ["אושר עד", "osher ad"]},
     "carrefour": {"he": "קרפור", "kind": "carrefour", "color": "#b18cff", "osm": ["קרפור", "carrefour", "מגה", "mega"]},
+    "shukhayir": {"he": "שוק העיר", "kind": "bina", "host": "shuk-hayir", "id": "7290058148776", "color": "#ff9f43", "osm": ["שוק העיר", "shuk hair", "shuk ha'ir", "shuk hayir"]},
 }
 
 
@@ -230,7 +233,35 @@ class Carrefour:
         return _get(self.s, name_link[1]).content
 
 
-PORTALS = {"shufersal": Shufersal, "cerberus": Cerberus, "carrefour": Carrefour}
+class Bina:
+    """Bina Projects portals (<host>.binaprojects.com), e.g. שוק העיר.
+
+    MainIO_Hok.aspx answers a JSON list of files filtered by type and branch; Download.aspx?FileNm=
+    answers a JSON pointer ({"SPath": ...}) to the file itself, a gzip'd XML on the same host."""
+    TYPES = {"Stores": 1, "PriceFull": 4, "PromoFull": 5}
+
+    def __init__(self, cfg):
+        self.base = f"https://{cfg['host']}.binaprojects.com"
+        self.chain_id = cfg["id"]
+        self.s = _session()
+
+    def latest(self, kind: str, store: str | None = None) -> tuple[str, str]:
+        r = _get(self.s, f"{self.base}/MainIO_Hok.aspx", tries=3, params={
+            "_": self.chain_id, "wReshet": "הכל", "WFileType": self.TYPES[kind],
+            "WDate": "", "WStore": f"{int(store):03d}" if store else ""})
+        pat = re.compile(rf"^{kind}\d+-" + (rf"\d+-{int(store):03d}-" if store else ""))
+        names = sorted((e["FileNm"] for e in r.json() if pat.search(e.get("FileNm", ""))),
+                       key=lambda f: re.findall(r"\d{8,14}", f)[-1])
+        if not names:
+            raise RuntimeError(f"bina/{self.base}: no {kind} file for store {store}")
+        return names[-1], f"{self.base}/Download.aspx?FileNm={names[-1]}"
+
+    def fetch(self, name_link) -> bytes:
+        spath = _get(self.s, name_link[1]).json()[0]["SPath"]
+        return _get(self.s, spath).content
+
+
+PORTALS = {"shufersal": Shufersal, "cerberus": Cerberus, "carrefour": Carrefour, "bina": Bina}
 _open: dict[str, object] = {}
 
 
