@@ -4,7 +4,9 @@ Preferences for price comparisons (supermarket-compare skill). Read at the start
 
 ## Search defaults
 - Always use a **5 km radius** (straight-line). Every branch inside Kfar Saba must be included.
-- Home area: **Kfar Saba**. Usual store: SPAR, Eli Horovitz 26, Kfar Saba (not a chain the tool supports, so compare receipt prices directly by barcode with `price_check.py prices`).
+- Home area: **Kfar Saba**. Usual store: **Shuk HaIr (שוק העיר) Kfar Saba East, branch 011, Eli Horovitz 26**.
+- **SPAR Israel, Eli Horovitz 26** is a *separate* store right next to Shuk HaIr, at the same address. Treat them as two different stores. SPAR is not supported by the tool, so compare SPAR receipts directly by barcode with `price_check.py prices`.
+- Shuk HaIr is supported by the tool as chain `shukhayir` (Bina portal, `shuk-hayir.binaprojects.com`, allowed in the environment). For a Shuk HaIr receipt use `--home shukhayir:011`; in no-receipt checks it is included automatically and should be shown as the user's own store.
 - If a Kfar Saba branch can't be placed on the map, locate it manually (add it to `scripts/branch_locations.json` in the installed skill) instead of skipping it.
 
 ## How to present results

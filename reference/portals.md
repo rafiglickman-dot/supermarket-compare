@@ -23,6 +23,7 @@
 | שופרסל | `prices.shufersal.co.il` | טבלת HTML לפי קטגוריה (`catID=2` = PriceFull, `5` = סניפים) ומספר סניף; הקישורים מובילים לאחסון של Azure |
 | רמי לוי, יוחננוף, אושר עד | `url.publishedprices.co.il` | כניסה עם שם משתמש ציבורי בלי סיסמה (`RamiLevi`, `yohananof`, `osherad`), ואז רשימת קבצים ב-JSON (`/file/json/dir`) והורדה מ-`/file/d/<name>` |
 | קרפור | `prices.carrefour.co.il` | רשימת הקבצים של היום כ-JSON בתוך הדף (`const files`), הקבצים בתיקייה לפי תאריך |
+| שוק העיר | `shuk-hayir.binaprojects.com` | `MainIO_Hok.aspx?_=<מספר רשת>&wReshet=הכל&WFileType=<1 סניפים, 4 PriceFull, 5 PromoFull>&WStore=<סניף>` מחזיר רשימת קבצים ב-JSON; `Download.aspx?FileNm=<שם>` מחזיר JSON עם `SPath`, הקישור לקובץ עצמו (gz) |
 | ויקטורי, ח. כהן, מחסני השוק | `laibcatalog.co.il` | טופס ASP.NET. לא נתמך עדיין |
 
 להוסיף רשת שיושבת על פורטל נתמך = שורה אחת ב-`CHAINS` שב-`chains.py` (שם, פורטל, שם משתמש, צבע ושמות לזיהוי במפה). רשתות נוספות ב-publishedprices לא נבדקו בסקיל.
